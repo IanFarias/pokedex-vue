@@ -20,7 +20,7 @@
   --waterType: #39f;
   --grassType: #7c5;
   --electricType: #fc3;
-  --psychiType: #f59;
+  --psychicType: #f59;
   --iceType: #6cf;
   --fairyType: #e9e;
   --stellarType: #fa00fa;
