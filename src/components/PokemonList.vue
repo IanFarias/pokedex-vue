@@ -65,8 +65,15 @@ ul {
   display: grid;
   justify-content: space-between;
   gap: 40px;
-  grid-template-columns: repeat(auto-fill, 270px);
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
   min-height: 50vh;
+}
+
+@media (max-width: 700px) {
+  .total {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .total {

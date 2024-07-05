@@ -386,6 +386,10 @@ main {
   width: 100%;
 }
 
+.next:disabled > svg,
+.previous:disabled > svg {
+  opacity: 0.2;
+}
 @media (max-width: 1240px) {
   .next,
   .previous {
