@@ -1,16 +1,19 @@
 <script>
 import pokeApi from "@/services/api/pokeApi";
 import TagCard from "@/components/TagCard.vue";
+import HiddenText from "@/components/HiddenText.vue";
 import ButtonIcon from "@/components/ButtonIcon.vue";
 import IconWeight from "@/components/icons/IconWeight.vue";
 import IconHeight from "@/components/icons/IconHeight.vue";
 import IconReturn from "@/components/icons/IconReturn.vue";
-import HiddenText from "@/components/HiddenText.vue";
+import IconArrowRight from "@/components/icons/IconArrowRight.vue";
+import IconArrowLeft from "@/components/icons/IconArrowLeft.vue";
 
 const { getPokemonDetails } = pokeApi();
 export default {
   data() {
     return {
+      id: 0,
       name: this.$route.params["name"] || "",
       sprites: {},
       abilities: [],
@@ -27,18 +30,11 @@ export default {
     IconHeight,
     IconReturn,
     HiddenText,
+    IconArrowRight,
+    IconArrowLeft,
   },
   created: async function () {
-    const pokemon = await getPokemonDetails(this.name);
-    this.weight = pokemon.weight;
-    this.height = pokemon.height;
-    this.sprites = { ...pokemon.sprites };
-    this.types = pokemon.types.map((el) => el.type.name);
-    this.stats = pokemon.stats.map((el) => ({
-      value: el.base_stat,
-      name: el.stat.name,
-    }));
-    this.abilities = pokemon.abilities.map((a) => a.ability);
+    await this.populateData(this.name);
   },
   computed: {
     getWeight: function () {
@@ -63,6 +59,86 @@ export default {
     handleReturn: function () {
       this.$router.back(1);
     },
+    populateData: async function (pokemonId) {
+      const pokemon = await getPokemonDetails(pokemonId);
+      this.id = pokemon.id;
+      this.name = pokemon.name;
+      this.weight = pokemon.weight;
+      this.height = pokemon.height;
+      this.sprites = { ...pokemon.sprites };
+      this.types = pokemon.types.map((el) => el.type.name);
+      this.stats = pokemon.stats.map((el) => ({
+        value: el.base_stat,
+        name: el.stat.name,
+      }));
+      this.abilities = pokemon.abilities.map((a) => a.ability);
+    },
+    handleNextPokemon: async function () {
+      this.id = this.id + 1;
+
+      try {
+        const { name } = await getPokemonDetails(this.id);
+        this.$router.push({
+          name: "PokemonDetail",
+          params: { name },
+          replace: true,
+        });
+      } catch (error) {
+        this.id = 1;
+        const { name } = await getPokemonDetails(this.id);
+        this.$router.replace({
+          name: "PokemonDetail",
+          params: { name },
+        });
+      }
+    },
+    handlePreviousPokemon: async function () {
+      try {
+        this.id = this.id - 1;
+        const { name } = await getPokemonDetails(this.id);
+        this.$router.replace({
+          name: "PokemonDetail",
+          params: { name },
+        });
+      } catch (error) {
+        this.id = 1;
+        const { name } = await getPokemonDetails(this.id);
+        this.$router.replace({
+          name: "PokemonDetail",
+          params: { name },
+        });
+      }
+    },
+    touchStart(touchEvent) {
+      if (touchEvent.changedTouches.length !== 1) {
+        // We only care if one finger is used
+        return;
+      }
+      const posXStart = touchEvent.changedTouches[0].clientX;
+      addEventListener(
+        "touchend",
+        (touchEvent) => this.touchEnd(touchEvent, posXStart),
+        { once: true }
+      );
+    },
+    touchEnd(touchEvent, posXStart) {
+      if (touchEvent.changedTouches.length !== 1) {
+        return;
+      }
+      const posXEnd = touchEvent.changedTouches[0].clientX;
+      if (posXStart < posXEnd) {
+        this.handlePreviousPokemon(); // swipe right
+      } else if (posXStart > posXEnd) {
+        this.handleNextPokemon(); // swipe left
+      }
+    },
+  },
+  watch: {
+    "$route.params.name": {
+      handler: async function () {
+        await this.populateData(this.id);
+      },
+    },
   },
 };
 </script>
@@ -73,7 +149,7 @@ export default {
       <IconReturn
     /></ButtonIcon>
   </header>
-  <main class="container">
+  <main class="container" @touchstart="touchStart">
     <h1 class="name">
       {{ toCapitalize(name) }}
     </h1>
@@ -122,6 +198,24 @@ export default {
         </span>
       </li>
     </ul>
+
+    <ButtonIcon
+      :label="'Previous'"
+      class="previous"
+      :disabled="this.id === 1"
+      type="click"
+      @click="handlePreviousPokemon"
+    >
+      <IconArrowLeft />
+    </ButtonIcon>
+    <ButtonIcon
+      :label="'Next'"
+      class="next"
+      type="click"
+      @click="handleNextPokemon"
+    >
+      <IconArrowRight />
+    </ButtonIcon>
   </main>
 </template>
 
@@ -135,6 +229,7 @@ header {
 }
 
 main {
+  position: relative;
   display: flex;
   flex-direction: column;
   max-width: 40%;
@@ -264,5 +359,35 @@ main {
   background-color: #fd3939;
   height: 10px;
   border-radius: 16px;
+}
+
+.next,
+.previous {
+  height: 44px;
+}
+
+.previous {
+  position: absolute;
+  top: 40%;
+  left: -10%;
+}
+
+.next {
+  position: absolute;
+  top: 40%;
+  right: -10%;
+}
+
+.previous svg,
+.next svg {
+  height: 100%;
+  width: 100%;
+}
+
+@media (max-width: 1240px) {
+  .next,
+  .previous {
+    display: none;
+  }
 }
 </style>
