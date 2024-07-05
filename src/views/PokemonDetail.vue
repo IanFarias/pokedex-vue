@@ -126,10 +126,12 @@ export default {
         return;
       }
       const posXEnd = touchEvent.changedTouches[0].clientX;
-      if (posXStart < posXEnd) {
-        this.handlePreviousPokemon(); // swipe right
-      } else if (posXStart > posXEnd) {
-        this.handleNextPokemon(); // swipe left
+      const horizontalDifference = posXStart - posXEnd;
+
+      if (horizontalDifference >= 100) {
+        return this.handleNextPokemon();
+      } else if (horizontalDifference <= -100) {
+        return this.handlePreviousPokemon();
       }
     },
   },
