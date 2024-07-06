@@ -328,7 +328,7 @@ main {
 
 @media (max-width: 1240px) {
   .sprite {
-    height: 60vh;
+    height: 40vh;
   }
 }
 
