@@ -322,13 +322,13 @@ main {
   display: block;
   width: 100%;
   image-rendering: pixelated;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 
 @media (max-width: 1240px) {
   .sprite {
-    height: 68vh;
+    height: 60vh;
   }
 }
 
