@@ -287,7 +287,7 @@ main {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 40px;
+  padding: 40px 40px 20px;
   color: #eff0f7;
   justify-content: space-between;
 }
@@ -306,7 +306,7 @@ main {
 .about__abilities {
   width: 100%;
   background-color: #5f2eea;
-  padding: 40px;
+  padding: 20px 40px 40px;
   border-radius: 12px;
   color: #eff0f7;
 }
@@ -322,6 +322,14 @@ main {
   display: block;
   width: 100%;
   image-rendering: pixelated;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 1240px) {
+  .sprite {
+    height: 68vh;
+  }
 }
 
 .name {
